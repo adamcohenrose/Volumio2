@@ -69,11 +69,35 @@ AlarmClock.prototype.getUIConfig = function () {
   // enable
   uiconf.sections[0].content[0].value = config.get('enabled');
 
+  // shuffle
+  uiconf.sections[0].content[1].value = config.get('shuffle');
+
   // hour
-  uiconf.sections[0].content[1].value.value = config.get('hour');
+  uiconf.sections[0].content[2].value.value = config.get('hour');
 
   // minute
-  uiconf.sections[0].content[2].value.value = config.get('minute');
+  uiconf.sections[0].content[3].value.value = config.get('minute');
+
+  //monday
+  uiconf.sections[0].content[4].value.value=config.get('monday');
+
+  //tuesday
+  uiconf.sections[0].content[5].value.value=config.get('tuesday');
+
+  //wednesday
+  uiconf.sections[0].content[6].value.value=config.get('wednesday');
+
+  //thursday
+  uiconf.sections[0].content[7].value.value=config.get('thursday');
+
+  //friday
+  uiconf.sections[0].content[8].value.value=config.get('friday');
+
+  //saturday
+  uiconf.sections[0].content[9].value.value=config.get('saturday');
+
+  //sunday
+  uiconf.sections[0].content[10].value.value=config.get('sunday');
 
   return uiconf;
 };
@@ -98,6 +122,9 @@ AlarmClock.prototype.fireAlarm = function (alarm) {
   var self = this;
 
   self.logger.info('Starting Scheduled Playlist ' + alarm.playlist);
+  if (alarm.shuffle) {
+    self.commandRouter.setRandom({"value": true})
+  }
   self.commandRouter.playPlaylist(alarm.playlist);
 };
 
@@ -121,6 +148,28 @@ AlarmClock.prototype.applyConf = function (conf) {
 
     var schedule = require('node-schedule');
     var rule = new schedule.RecurrenceRule();
+    rule.dayOfWeek = [];
+    if (item.monday) {
+      rule.dayOfWeek.push(1);
+    }
+    if (item.tuesday) {
+      rule.dayOfWeek.push(2);
+    }
+    if (item.wednesday) {
+      rule.dayOfWeek.push(3);
+    }
+    if (item.thursday) {
+      rule.dayOfWeek.push(4);
+    }
+    if (item.friday) {
+      rule.dayOfWeek.push(5);
+    }
+    if (item.saturday) {
+      rule.dayOfWeek.push(6);
+    }
+    if (item.sunday) {
+      rule.dayOfWeek.push(7);
+    }
     rule.minute = d.getMinutes();
     rule.hour = d.getHours();
     let currentItem = Object.assign({}, item);
@@ -196,6 +245,9 @@ AlarmClock.prototype.saveAlarm = function (data) {
     } else if (!data[i].playlist) {
       var error = true;
       self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('ALARM.ALARM_CLOCK_TITLE'), self.commandRouter.getI18nString('ALARM.PLAYLIST_SELECT_ERROR'));
+    } else if (!data[i].monday && !data[i].tuesday && !data[i].wednesday && !data[i].thursday && !data[i].friday && !data[i].saturday && !data[i].sunday) {
+      var error = true;
+      self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('ALARM.ALARM_CLOCK_TITLE'), self.commandRouter.getI18nString('ALARM.DAY_SELECT_ERROR'));
     }
   }
 
